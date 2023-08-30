@@ -1,7 +1,6 @@
 import os
 import subprocess
 from pydub import AudioSegment
-import mimetypes
 import eyed3
 
 
