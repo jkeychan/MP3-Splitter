@@ -1,2 +1,5 @@
 .vscode/settings.json
 mp3-splitter-original.py
+.venv/
+FF0000-track.mp3
+FF0000-track_1/
