@@ -157,7 +157,10 @@ def main(
     should_edit_tags = edit_tags
     all_outputs: list[Path] = []
 
-    for mp3_path in mp3_files:
+    for i, mp3_path in enumerate(mp3_files):
+        if i > 0:
+            rprint()
+
         try:
             stream = mp3_frames.load_audio_stream(mp3_path)
         except mp3_frames.UnsupportedMp3Error as exc:
