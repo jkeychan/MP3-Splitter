@@ -1,9 +1,9 @@
 """Split an MP3 into sections at given time offsets, then optionally edit ID3 tags.
 
 Splitting is pure Python: no ffmpeg, no subprocess. Frames are located by
-scanning the file's own MPEG frame headers (see mp3_frames.py) and cuts land
-on frame boundaries, so output is byte-copied straight from the source —
-no decoding, no re-encoding, no external binary.
+scanning the file's own MPEG frame headers (see the waxcut library) and
+cuts land on frame boundaries, so output is byte-copied straight from the
+source — no decoding, no re-encoding, no external binary.
 """
 
 from __future__ import annotations
@@ -11,12 +11,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import typer
+import waxcut
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3NoHeaderError
 from rich import print as rprint
 from rich.prompt import Confirm, Prompt
-
-import mp3_frames
 
 app = typer.Typer(add_completion=False, help=__doc__)
 
@@ -82,14 +81,14 @@ def unique_output_dir(base: Path) -> Path:
     return candidate
 
 
-def split_file(stream: mp3_frames.AudioStream, timestamps_ms: list[float], output_dir: Path) -> list[Path]:
-    bounds = [0, *(mp3_frames.frame_index_at(stream.frames, ms) for ms in timestamps_ms), len(stream.frames)]
+def split_file(stream: waxcut.AudioStream, timestamps_ms: list[float], output_dir: Path) -> list[Path]:
+    bounds = [0, *(waxcut.frame_index_at(stream.frames, ms) for ms in timestamps_ms), len(stream.frames)]
     outputs = []
     for idx, (start, end) in enumerate(zip(bounds, bounds[1:]), start=1):
         if start >= end:
             continue
         out_path = output_dir / f"part{idx}.mp3"
-        out_path.write_bytes(mp3_frames.slice_bytes(stream.data, stream.frames, start, end))
+        out_path.write_bytes(waxcut.slice_bytes(stream.data, stream.frames, start, end))
         outputs.append(out_path)
     return outputs
 
@@ -162,8 +161,8 @@ def main(
             rprint()
 
         try:
-            stream = mp3_frames.load_audio_stream(mp3_path)
-        except mp3_frames.UnsupportedMp3Error as exc:
+            stream = waxcut.load_audio_stream(mp3_path)
+        except waxcut.UnsupportedMp3Error as exc:
             rprint(f"[red]{mp3_path.name}: {exc}[/red]")
             continue
 

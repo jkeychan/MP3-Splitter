@@ -4,9 +4,9 @@ Split an MP3 into sections at given time offsets, then optionally edit the
 ID3 tags of the resulting files.
 
 Splitting is pure Python — no ffmpeg, no subprocess, no external binary.
-Cuts are made by parsing the file's own MPEG frame headers and copying whole
-frames, so output is lossless and fast (no decode/re-encode step). See
-[`mp3_frames.py`](mp3_frames.py) for how the frame parsing works.
+Frame parsing and cutting is handled by [waxcut](https://github.com/jkeychan/waxcut),
+which locates MPEG frame boundaries directly from the byte stream so output
+is lossless and fast (no decode/re-encode step).
 
 ## Install
 
@@ -63,7 +63,6 @@ Run `uv run mp3_splitter.py --help` for all options.
 uv run pytest tests/ -v
 ```
 
-The test suite validates frame parsing against [mutagen](https://github.com/quodlibet/mutagen)'s
-independent MP3 parser (duration must match exactly, including LAME gapless
-delay/padding) and, if `ffmpeg`/`ffprobe` are available, independently decodes
-every split output file to confirm it's valid.
+Tests here cover this repo's own CLI logic (time-string parsing, split-point
+validation). Frame parsing itself is tested in
+[waxcut's own test suite](https://github.com/jkeychan/waxcut).
