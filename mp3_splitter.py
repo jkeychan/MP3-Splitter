@@ -1,4 +1,4 @@
-"""Split an MP3 into sections at given millisecond offsets, then optionally edit ID3 tags.
+"""Split an MP3 into sections at given time offsets, then optionally edit ID3 tags.
 
 Splitting is pure Python: no ffmpeg, no subprocess. Frames are located by
 scanning the file's own MPEG frame headers (see mp3_frames.py) and cuts land
@@ -23,23 +23,50 @@ app = typer.Typer(add_completion=False, help=__doc__)
 TAG_FIELDS = {"a": "artist", "b": "album", "t": "title"}
 
 
-def parse_timestamps(raw: str, duration_ms: float) -> list[int]:
+def format_duration(ms: float) -> str:
+    total_seconds = int(ms // 1000)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return f"{minutes}:{seconds:02d}"
+
+
+def parse_time_to_ms(text: str) -> float:
+    """Parse a single split point: plain seconds ("90", "90.5") or M:SS / H:MM:SS ("1:30", "1:02:03.5")."""
+    text = text.strip()
+    if ":" in text:
+        parts = text.split(":")
+        if len(parts) == 2:
+            hours, minutes, seconds = 0, parts[0], parts[1]
+        elif len(parts) == 3:
+            hours, minutes, seconds = parts
+        else:
+            raise ValueError(f"Invalid time format: {text!r}")
+        return ((int(hours) * 60 + int(minutes)) * 60 + float(seconds)) * 1000
+    return float(text) * 1000
+
+
+def parse_timestamps(raw: str, duration_ms: float) -> list[float]:
     try:
-        values = [int(t.strip()) for t in raw.split(",") if t.strip()]
+        values = [parse_time_to_ms(t) for t in raw.split(",") if t.strip()]
     except ValueError as exc:
-        raise typer.BadParameter("Timestamps must be integers in milliseconds.") from exc
+        raise typer.BadParameter(
+            "Split points must be seconds (e.g. 90) or M:SS / H:MM:SS (e.g. 1:30)."
+        ) from exc
 
     valid = values and values == sorted(set(values)) and all(0 <= v <= duration_ms for v in values)
     if not valid:
         raise typer.BadParameter(
-            "Timestamps must be unique, strictly increasing, and within the audio duration."
+            f"Split points must be unique, strictly increasing, and within the track's "
+            f"length ({format_duration(duration_ms)})."
         )
     return values
 
 
-def prompt_for_timestamps(duration_ms: float) -> list[int]:
+def prompt_for_timestamps(duration_ms: float) -> list[float]:
     while True:
-        raw = Prompt.ask(f"Enter split points in ms (0-{duration_ms:.0f}), comma separated")
+        raw = Prompt.ask("Enter split points (e.g. 90, 1:30, 2:45.5), comma separated")
         try:
             return parse_timestamps(raw, duration_ms)
         except typer.BadParameter as exc:
@@ -55,7 +82,7 @@ def unique_output_dir(base: Path) -> Path:
     return candidate
 
 
-def split_file(stream: mp3_frames.AudioStream, timestamps_ms: list[int], output_dir: Path) -> list[Path]:
+def split_file(stream: mp3_frames.AudioStream, timestamps_ms: list[float], output_dir: Path) -> list[Path]:
     bounds = [0, *(mp3_frames.frame_index_at(stream.frames, ms) for ms in timestamps_ms), len(stream.frames)]
     outputs = []
     for idx, (start, end) in enumerate(zip(bounds, bounds[1:]), start=1):
@@ -103,7 +130,8 @@ def main(
     ),
     timestamps: str | None = typer.Option(
         None, "--timestamps", "-t",
-        help="Comma-separated millisecond split points. Prompts per-file if omitted.",
+        help="Comma-separated split points: seconds (90) or M:SS / H:MM:SS (1:30). "
+        "Prompts per-file if omitted.",
     ),
     output_dir: Path | None = typer.Option(
         None, "--output-dir", "-o",
@@ -137,6 +165,7 @@ def main(
             continue
 
         duration_ms = stream.playable_duration_ms
+        rprint(f"[bold]{mp3_path.name}[/bold] — {format_duration(duration_ms)}")
         points = (
             parse_timestamps(timestamps, duration_ms) if timestamps
             else prompt_for_timestamps(duration_ms)
