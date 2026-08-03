@@ -10,10 +10,10 @@ frames, so output is lossless and fast (no decode/re-encode step). See
 
 ## Install
 
-Requires Python 3.10+.
+Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Usage
@@ -22,27 +22,26 @@ Run with no arguments for a fully interactive session (prompts for the file,
 split points, and whether to edit tags afterward):
 
 ```bash
-python mp3_splitter.py
+uv run mp3_splitter.py
 ```
 
 Or drive it non-interactively:
 
 ```bash
-python mp3_splitter.py song.mp3 --timestamps 60000,120000
-python mp3_splitter.py ./album-dir --timestamps 45000 --output-dir ./split --edit-tags
+uv run mp3_splitter.py song.mp3 --timestamps 60000,120000
+uv run mp3_splitter.py ./album-dir --timestamps 45000 --output-dir ./split --edit-tags
 ```
 
 Split points are millisecond offsets from the start of the file. Output
 lands in a folder named after the source file (`song/part1.mp3`,
 `song/part2.mp3`, ...), or under `--output-dir` if given.
 
-Run `python mp3_splitter.py --help` for all options.
+Run `uv run mp3_splitter.py --help` for all options.
 
 ## Development
 
 ```bash
-pip install -r requirements.txt pytest
-pytest tests/ -v
+uv run pytest tests/ -v
 ```
 
 The test suite validates frame parsing against [mutagen](https://github.com/quodlibet/mutagen)'s

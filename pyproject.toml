@@ -1,2 +1,18 @@
+[project]
+name = "mp3-splitter"
+version = "0.1.0"
+description = "Split an MP3 into sections at millisecond offsets and edit ID3 tags on the results — pure Python, no ffmpeg"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.27.0",
+    "rich>=15.0.0",
+    "mutagen>=1.48.1",
+]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
