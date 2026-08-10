@@ -25,7 +25,7 @@ name = "exceptiongroup"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
@@ -83,7 +83,7 @@ requires-dist = [
     { name = "mutagen", specifier = ">=1.48.1" },
     { name = "rich", specifier = ">=15.0.0" },
     { name = "typer", specifier = ">=0.27.0" },
-    { name = "waxcut", specifier = ">=0.1.0" },
+    { name = "waxcut", specifier = ">=0.3.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -245,9 +245,9 @@ wheels = [
 
 [[package]]
 name = "waxcut"
-version = "0.1.0"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a5/4e/bec5d1600d7a4172c2dde5423a2cde9b8f264454b30b6ce6e626a79c0266/waxcut-0.1.0.tar.gz", hash = "sha256:f8fae3390224babd5febec5d5dc5add24003f5d62484ad00467e75f9d938c24d", size = 10347, upload-time = "2026-08-03T18:02:03.009Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8d/2d/bf8d84cabf4f2f6d3b4f0e10f73692b3f5bf12fdccf71076069302e395cd/waxcut-0.3.1.tar.gz", hash = "sha256:ad8664c38d36b4b9c7312e1c96af6aef6fe32e1390866d2f09f2a50a7f0db7e1", size = 22857, upload-time = "2026-08-06T02:10:28.033Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/29/d8d5d8de30358672f5849cf5a1894e8dde4715e720014abc713ccfd6add7/waxcut-0.1.0-py3-none-any.whl", hash = "sha256:f6a6ebad608a1c06230fb9bcf7590e517e508f736db64634929313f481371dd6", size = 11644, upload-time = "2026-08-03T18:02:02.251Z" },
+    { url = "https://files.pythonhosted.org/packages/30/5e/415e864c082f7ad1983bbb4afd9a3fe5a41c484f95241b0560947b438860/waxcut-0.3.1-py3-none-any.whl", hash = "sha256:f2eb3fb4d6377ded3f543c3f7cc42c9cddda47cf2530d189a36b434253fcc8e6", size = 24337, upload-time = "2026-08-06T02:10:27.16Z" },
 ]
